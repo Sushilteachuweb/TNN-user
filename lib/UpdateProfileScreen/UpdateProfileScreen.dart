@@ -743,8 +743,14 @@ class _UpdateProfileSheetState extends State<UpdateProfileSheet> {
     _nameController = TextEditingController(text: widget.fullName);
     _emailController = TextEditingController(text: widget.email);
     _educationController = TextEditingController(text: widget.education);
-    _selectedGender =
-        widget.gender[0].toUpperCase() + widget.gender.substring(1);
+    
+    // Fix: Check if gender is not empty before accessing
+    if (widget.gender.isNotEmpty) {
+      _selectedGender =
+          widget.gender[0].toUpperCase() + widget.gender.substring(1);
+    } else {
+      _selectedGender = "Male"; // Default value
+    }
   }
 
   @override

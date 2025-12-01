@@ -676,8 +676,16 @@ class ProfileProvider with ChangeNotifier {
 
         if (data["success"] == true && data["user"] != null) {
           user = ProfileModel.fromJson(data["user"]);
-          print("User object: ${user?.fullName}, ${user?.email}, ${user?.phone}");
+          print("✅ User loaded: ${user?.fullName}, ${user?.email}, ${user?.phone}");
+        } else {
+          // Handle backend error
+          print("❌ Backend Error: ${data["message"]}");
+          if (data["message"]?.toString().contains("role=user") == true) {
+            print("⚠️ User role issue - contact backend team to fix user role in database");
+          }
         }
+      } else {
+        print("❌ Server error: ${response.statusCode}");
       }
     } catch (e) {
       print("Fetch profile error: $e");
