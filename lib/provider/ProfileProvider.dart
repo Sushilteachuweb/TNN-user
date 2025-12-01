@@ -1,0 +1,1134 @@
+//
+// bina resume ka hai
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
+//
+// import '../ model/ProfileModel.dart';
+//
+// class ProfileProvider with ChangeNotifier {
+//   bool isLoading = false;
+//   ProfileModel? user;
+//
+//   Future<void> fetchProfile() async {
+//     isLoading = true;
+//     notifyListeners();
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//       print("🍪 get cookie= $cookie");
+//
+//       final response = await http.get(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/get-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie,
+//         },
+//       );
+//
+//       print("📡 Fetch Profile Status: ${response.statusCode}");
+//       print("📩 Fetch Profile Response: ${response.body}");
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(response.body);
+//         if (data["success"] == true && data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//           print("👤 User loaded: ${user!.fullName}");
+//         }
+//       } else {
+//         print("❌ Server error: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("❌ Exception in fetchProfile: $e");
+//     }
+//     isLoading = false;
+//     notifyListeners();
+//   }
+//
+//   // ✅ Update Profile (Multipart + PUT with gender normalize)
+//   Future<bool> updateProfile(Map<String, dynamic> updatedData) async {
+//     isLoading = true;
+//     notifyListeners();
+//
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//       print("🍪 Update cookie = $cookie");
+//
+//       var request = http.MultipartRequest(
+//         "PUT",
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/update-profile"),
+//       );
+//
+//       // ✅ Gender ko lowercase bhejna (server enum fix ke liye)
+//       if (updatedData["gender"] != null) {
+//         updatedData["gender"] =
+//             updatedData["gender"].toString().toLowerCase();
+//       }
+//
+//       updatedData.forEach((key, value) {
+//         if (value != null) {
+//           request.fields[key] = value.toString();
+//         }
+//       });
+//
+//       print("📤 Sending fields to Update API:");
+//       request.fields.forEach((key, value) {
+//         print("   ➡️ $key = $value");
+//       });
+//
+//       request.headers.addAll({
+//         "Cookie": cookie,
+//         "Accept": "application/json",
+//       });
+//
+//       print("📡 Sending Update request...");
+//       var response = await request.send();
+//       final respStr = await response.stream.bytesToString();
+//
+//       print("✅ Update API status: ${response.statusCode}");
+//       print("📩 Update API raw response: $respStr");
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(respStr);
+//
+//         if (data["success"] == true) {
+//           if (data["user"] != null) {
+//             user = ProfileModel.fromJson(data["user"]);
+//             print("🎉 User updated successfully: ${user!.fullName}");
+//           }
+//           await fetchProfile(); // 🔄 Refresh profile
+//           isLoading = false;
+//           notifyListeners();
+//           return true;
+//         } else {
+//           print("⚠️ Update failed: ${data["message"]}");
+//         }
+//       } else {
+//         print("❌ Server error in update: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("❌ Exception in updateProfile: $e");
+//     }
+//
+//     isLoading = false;
+//     notifyListeners();
+//     return false;
+//   }
+// }
+
+
+
+
+// resume ke sath use hai correct
+
+// import 'dart:convert';
+// import 'dart:io';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
+// import '../ model/ProfileModel.dart';
+//
+// class ProfileProvider with ChangeNotifier {
+//   bool isLoading = false;
+//   ProfileModel? user;
+//
+//   Future<void> fetchProfile() async {
+//     isLoading = true;
+//     notifyListeners();
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//       print("🍪 get cookie= $cookie");
+//
+//       final response = await http.get(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/get-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie,
+//         },
+//       );
+//
+//       print("📡 Fetch Profile Status: ${response.statusCode}");
+//       print("📩 Fetch Profile Response: ${response.body}");
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(response.body);
+//         if (data["success"] == true && data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//           print("👤 User loaded: ${user!.fullName}");
+//         }
+//       } else {
+//         print("❌ Server error: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("❌ Exception in fetchProfile: $e");
+//     }
+//     isLoading = false;
+//     notifyListeners();
+//   }
+//
+//   /// Update Profile with optional profile image & resume
+//   Future<bool> updateProfile({
+//     required Map<String, dynamic> updatedData,
+//     File? profileImage,
+//     File? resumeFile,
+//   }) async {
+//     isLoading = true;
+//     notifyListeners();
+//
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//       print("🍪 Update cookie = $cookie");
+//
+//       var request = http.MultipartRequest(
+//         "PUT",
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/update-profile"),
+//       );
+//
+//       // ✅ Gender normalize
+//       if (updatedData["gender"] != null) {
+//         updatedData["gender"] = updatedData["gender"].toString().toLowerCase();
+//       }
+//
+//       // ✅ Add text fields
+//       updatedData.forEach((key, value) {
+//         if (value != null) {
+//           request.fields[key] = value.toString();
+//         }
+//       });
+//
+//       // ✅ Add profile image if provided
+//       if (profileImage != null && profileImage.existsSync()) {
+//         request.files.add(await http.MultipartFile.fromPath(
+//           'image', // API field name
+//           profileImage.path,
+//         ));
+//         print("🖼️ Profile image added: ${profileImage.path}");
+//       }
+//
+//       // ✅ Add resume file if provided
+//       if (resumeFile != null && resumeFile.existsSync()) {
+//         request.files.add(await http.MultipartFile.fromPath(
+//           'resume', // API field name
+//           resumeFile.path,
+//         ));
+//         print("📄 Resume added: ${resumeFile.path}");
+//       }
+//
+//       request.headers.addAll({
+//         "Cookie": cookie,
+//         "Accept": "application/json",
+//       });
+//
+//       print("📡 Sending Update request...");
+//       var response = await request.send();
+//       final respStr = await response.stream.bytesToString();
+//
+//       print("✅ Update API status: ${response.statusCode}");
+//       print("📩 Update API raw response: $respStr");
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(respStr);
+//
+//         if (data["success"] == true) {
+//           if (data["user"] != null) {
+//             user = ProfileModel.fromJson(data["user"]);
+//             print("🎉 User updated successfully: ${user!.fullName}");
+//           } else if (user != null) {
+//             // ⚡ Local merge if API user not returned
+//             user = ProfileModel(
+//               id: user!.id,
+//               fullName: updatedData["fullName"] ?? user!.fullName,
+//               phone: updatedData["phone"] ?? user!.phone,
+//               gender: updatedData["gender"] ?? user!.gender,
+//               email: updatedData["email"] ?? user!.email,
+//               image: profileImage?.path ?? user!.image,
+//               resume: resumeFile?.path ?? user!.resume,
+//               education: updatedData["education"] ?? user!.education,
+//               jobCategory: updatedData["jobCategory"] ?? user!.jobCategory,
+//               isExperienced:
+//               updatedData["isExperienced"] ?? user!.isExperienced,
+//               totalExperience:
+//               updatedData["totalExperience"] ?? user!.totalExperience,
+//               currentSalary:
+//               updatedData["currentSalary"] ?? user!.currentSalary,
+//             );
+//             print("🔄 Local user object merged with updated data");
+//           }
+//
+//           await fetchProfile(); // Refresh profile after update
+//           isLoading = false;
+//           notifyListeners();
+//           return true;
+//         } else {
+//           print("⚠️ Update failed: ${data["message"]}");
+//         }
+//       } else {
+//         print("❌ Server error in update: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("❌ Exception in updateProfile: $e");
+//     }
+//
+//     isLoading = false;
+//     notifyListeners();
+//     return false;
+//   }
+// }
+
+
+
+// working code 10-09-2025
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
+//
+// import '../ model/ProfileModel.dart';
+//
+//
+// class ProfileProvider with ChangeNotifier {
+//   bool isLoading = false;
+//   ProfileModel? user;
+//
+//   // Fetch profile
+//   Future<void> fetchProfile() async {
+//     isLoading = true;
+//     notifyListeners();
+//
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//
+//       final response = await http.get(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/get-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie,
+//         },
+//       );
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(response.body);
+//         if (data["success"] == true && data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//         }
+//       } else {
+//         print("Fetch profile failed: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("Fetch profile error: $e");
+//     }
+//
+//     isLoading = false;
+//     notifyListeners();
+//   }
+//
+//   // Update profile - only text fields
+//   Future<bool> updateProfile({
+//     required String fullName,
+//     required String email,
+//     required String gender,
+//     required String education,
+//   }) async {
+//     isLoading = true;
+//     notifyListeners();
+//
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//
+//       final response = await http.put(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/update-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie,
+//         },
+//         body: json.encode({
+//           "fullName": fullName,
+//           "email": email,
+//           "gender": gender.toLowerCase(),
+//           "education": education,
+//         }),
+//       );
+//
+//       final data = json.decode(response.body);
+//       if (response.statusCode == 200 && data["success"] == true) {
+//         if (data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//         }
+//         await fetchProfile();
+//         return true;
+//       } else {
+//         print("Update failed: ${response.body}");
+//       }
+//     } catch (e) {
+//       print("Update profile error: $e");
+//     }
+//
+//     isLoading = false;
+//     notifyListeners();
+//     return false;
+//   }
+// }
+
+
+
+
+
+
+
+// import 'dart:convert';
+// import 'dart:io';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
+//
+// import '../ model/ProfileModel.dart';
+//
+//
+// class ProfileProvider with ChangeNotifier {
+//   bool isLoading = false;
+//   ProfileModel? user;
+//
+//   /// Fetch profile
+//   Future<void> fetchProfile() async {
+//     isLoading = true;
+//     notifyListeners();
+//
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//
+//       final response = await http.get(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/get-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie,
+//         },
+//       );
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(response.body);
+//         if (data["success"] == true && data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//         }
+//       } else {
+//         print("Fetch profile failed: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("Fetch profile exception: $e");
+//     }
+//
+//     isLoading = false;
+//     notifyListeners();
+//   }
+//
+//   /// Update profile (text fields + optional image/resume)
+//   Future<bool> updateProfile({
+//     required String fullName,
+//     required String email,
+//     required String gender,
+//     required String education,
+//     File? profileImage,
+//     File? resumeFile,
+//   }) async {
+//     isLoading = true;
+//     notifyListeners();
+//
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//
+//       // Create Multipart request
+//       var request = http.MultipartRequest(
+//         "PUT",
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/update-profile"),
+//       );
+//
+//       // Add text fields
+//       request.fields['fullName'] = fullName;
+//       request.fields['email'] = email;
+//       request.fields['gender'] = gender.toLowerCase();
+//       request.fields['education'] = education;
+//
+//       // Add profile image if exists
+//       if (profileImage != null && profileImage.existsSync()) {
+//         request.files.add(await http.MultipartFile.fromPath(
+//           'image',
+//           profileImage.path,
+//         ));
+//       }
+//
+//       // Add resume if exists
+//       if (resumeFile != null && resumeFile.existsSync()) {
+//         request.files.add(await http.MultipartFile.fromPath(
+//           'resume',
+//           resumeFile.path,
+//         ));
+//       }
+//
+//       // Headers
+//       request.headers.addAll({
+//         "Cookie": cookie,
+//         "Accept": "application/json",
+//       });
+//
+//       // Send request
+//       var response = await request.send();
+//       final respStr = await response.stream.bytesToString();
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(respStr);
+//         if (data["success"] == true) {
+//           if (data["user"] != null) {
+//             user = ProfileModel.fromJson(data["user"]);
+//           }
+//           await fetchProfile(); // refresh profile
+//           isLoading = false;
+//           notifyListeners();
+//           return true;
+//         } else {
+//           print("Update failed: ${data['message']}");
+//         }
+//       } else {
+//         print("Server error: ${response.statusCode}, $respStr");
+//       }
+//     } catch (e) {
+//       print("Update profile exception: $e");
+//     }
+//
+//     isLoading = false;
+//     notifyListeners();
+//     return false;
+//   }
+// }
+
+
+
+// import 'dart:convert';
+// import 'dart:io';
+// import 'package:flutter/foundation.dart';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:http_parser/http_parser.dart';
+//
+// import '../ model/ProfileModel.dart';
+//
+//
+// class ProfileProvider with ChangeNotifier {
+//   bool isLoading = false;
+//   ProfileModel? user;
+//
+//   Future<void> fetchProfile() async {
+//     isLoading = true;
+//     notifyListeners();
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//
+//       final response = await http.get(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/get-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie,
+//         },
+//       );
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(response.body);
+//
+//         if (data["success"] == true && data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//           if (kDebugMode) print("✅ Profile fetched: ${user?.fullName}");
+//         }
+//       } else {
+//         if (kDebugMode) print("Failed to fetch profile: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("Fetch profile error: $e");
+//     }
+//     isLoading = false;
+//     notifyListeners();
+//   }
+//
+//   Future<bool> updateProfile({
+//     required String fullName,
+//     required String email,
+//     required String gender,
+//     required String education,
+//     File? profileImage,
+//     File? resumeFile,
+//   }) async {
+//     isLoading = true;
+//     notifyListeners();
+//
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//
+//       var request = http.MultipartRequest(
+//         "PUT",
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/update-profile"),
+//       );
+//
+//       request.fields["fullName"] = fullName;
+//       request.fields["email"] = email;
+//       request.fields["gender"] = gender.toLowerCase();
+//       request.fields["education"] = education;
+//
+//       if (profileImage != null && profileImage.existsSync()) {
+//         request.files.add(await http.MultipartFile.fromPath(
+//           'image',
+//           profileImage.path,
+//           contentType: MediaType('image', 'jpeg'),
+//         ));
+//       }
+//
+//       if (resumeFile != null && resumeFile.existsSync()) {
+//         request.files.add(await http.MultipartFile.fromPath(
+//           'resume',
+//           resumeFile.path,
+//         ));
+//       }
+//
+//       request.headers.addAll({
+//         "Cookie": cookie,
+//         "Accept": "application/json",
+//       });
+//
+//       var response = await request.send();
+//       final respStr = await response.stream.bytesToString();
+//       final data = json.decode(respStr);
+//
+//       if (response.statusCode == 200 && data["success"] == true) {
+//         if (data["user"] != null) user = ProfileModel.fromJson(data["user"]);
+//         await fetchProfile();
+//         isLoading = false;
+//         notifyListeners();
+//         return true;
+//       } else {
+//         print("Update failed: $respStr");
+//       }
+//     } catch (e) {
+//       print("UpdateProfile error: $e");
+//     }
+//
+//     isLoading = false;
+//     notifyListeners();
+//     return false;
+//   }
+// }
+
+
+
+
+
+//ye sahi hai 29-09-2025
+
+
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http_parser/http_parser.dart';
+import '../model/ProfileModel.dart';
+class ProfileProvider with ChangeNotifier {
+
+  bool isLoading = false;
+  ProfileModel? user;
+
+  Future<void> fetchProfile() async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cookie = prefs.getString("cookie") ?? "";
+      print("Cookie used: $cookie");
+
+      final response = await http.get(
+        Uri.parse("https://api.thenaukrimitra.com/api/user/get-profile"),
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "Cookie": cookie,
+        },
+      );
+
+
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print("Decoded JSON: $data");
+
+        if (data["success"] == true && data["user"] != null) {
+          user = ProfileModel.fromJson(data["user"]);
+          print("User object: ${user?.fullName}, ${user?.email}, ${user?.phone}");
+        }
+      }
+    } catch (e) {
+      print("Fetch profile error: $e");
+    }
+    isLoading = false;
+    notifyListeners();
+  }
+
+  Future<bool> updateProfile({
+    required String fullName,
+    required String email,
+    required String gender,
+    required String education,
+    File? profileImage,
+    File? resumeFile,
+  }) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cookie = prefs.getString("cookie") ?? "";
+
+      var request = http.MultipartRequest(
+        "PUT",
+        Uri.parse("https://api.thenaukrimitra.com/api/user/update-profile"),
+      );
+
+      // Add text fields
+      request.fields["fullName"] = fullName;
+      request.fields["email"] = email;
+      request.fields["gender"] = gender.toLowerCase();
+      request.fields["education"] = education;
+
+
+      if (profileImage != null && profileImage.existsSync()) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'image',
+          profileImage.path,
+          contentType: MediaType('image', 'jpeg'),
+        ));
+      }
+
+      if (resumeFile != null && resumeFile.existsSync()) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'resume',
+          resumeFile.path,
+        ));
+      }
+
+      request.headers.addAll({
+        "Cookie": cookie,
+        "Accept": "application/json",
+      });
+
+      var response = await request.send();
+      final respStr = await response.stream.bytesToString();
+      final data = json.decode(respStr);
+
+      if (response.statusCode == 200 && data["success"] == true) {
+        if (data["user"] != null) user = ProfileModel.fromJson(data["user"]);
+        await fetchProfile();
+        isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        print("Update failed: $respStr");
+      }
+    } catch (e) {
+      print("UpdateProfile error: $e");
+    }
+
+    isLoading = false;
+    notifyListeners();
+    return false;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// bina UpdateProfile use code correct duplicate
+
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
+//
+// import '../ model/ProfileModel.dart';
+//
+// class ProfileProvider with ChangeNotifier {
+//   bool isLoading = false;
+//   ProfileModel? user;
+//
+//   Future<void> fetchProfile() async {
+//     isLoading = true;
+//     notifyListeners();
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//       print("get cookie= $cookie");
+//
+//       final response = await http.get(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/get-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie
+//         },
+//       );
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(response.body);
+//         if (data["success"] == true && data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//           print("👤 User loaded: ${user!.fullName}");
+//         }
+//       } else {
+//         print("❌ Server error: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("❌ Exception: $e");
+//     }
+//     isLoading = false;
+//     notifyListeners();
+//   }
+//
+//   // ✅ Update Profile (Multipart + PUT)
+//   Future<bool> updateProfile(Map<String, dynamic> updatedData) async {
+//     isLoading = true;
+//     notifyListeners();
+//
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//       print("Update cookie = $cookie");
+//
+//       var request = http.MultipartRequest(
+//         "PUT",
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/update-profile"),
+//       );
+//
+//       // Fields add karna (sirf wahi jo null nahi hain)
+//       updatedData.forEach((key, value) {
+//         if (value != null) {
+//           request.fields[key] = value.toString();
+//         }
+//       });
+//
+//       request.headers.addAll({
+//         "Cookie": cookie,
+//         "Accept": "application/json",
+//       });
+//
+//       var response = await request.send();
+//       final respStr = await response.stream.bytesToString();
+//       print("Update API status: ${response.statusCode}");
+//       print("Update API response: $respStr");
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(respStr);
+//
+//         if (data["success"] == true) {
+//           if (data["user"] != null) {
+//             user = ProfileModel.fromJson(data["user"]);
+//           } else if (user != null) {
+//             // Agar user object null nahi hai to updated fields merge karo
+//             user = ProfileModel(
+//               id: user!.id,
+//               fullName: updatedData["fullName"] ?? user!.fullName,
+//               phone: updatedData["phone"] ?? user!.phone,
+//               gender: updatedData["gender"] ?? user!.gender,
+//               email: updatedData["email"] ?? user!.email,
+//               image: updatedData["image"] ?? user!.image,
+//               resume: updatedData["resume"] ?? user!.resume,
+//               education: updatedData["education"] ?? user!.education,
+//               jobCategory: updatedData["jobCategory"] ?? user!.jobCategory,
+//               isExperienced: updatedData["isExperienced"] ?? user!.isExperienced,
+//               totalExperience: updatedData["totalExperience"] ?? user!.totalExperience,
+//             );
+//           }
+//
+//           await fetchProfile(); // 🔄 Refresh profile after update
+//           isLoading = false;
+//           notifyListeners();
+//           return true;
+//         }
+//       }
+//     } catch (e) {
+//       print("❌ Update error: $e");
+//     }
+//
+//     isLoading = false;
+//     notifyListeners();
+//     return false;
+//   }
+// }
+
+
+
+// bina UpdateProfile use code correct
+
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
+//
+// import '../ model/ProfileModel.dart';
+//
+//
+// class ProfileProvider with ChangeNotifier {
+//   bool isLoading = false;
+//   ProfileModel? user;
+//
+//   Future<void> fetchProfile() async {
+//     isLoading = true;
+//     notifyListeners();
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//       print("get cookie= $cookie");
+//
+//       final response = await http.get(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/get-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie
+//         },
+//       );
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(response.body);
+//         if (data["success"] == true && data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//           print("👤 User loaded: ${user!.fullName}");
+//         }
+//       } else {
+//         print("❌ Server error: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("❌ Exception: $e");
+//     }
+//     isLoading = false;
+//     notifyListeners();
+//   }
+//
+//   // ✅ Update Profile (Flexible: Map-based)
+//   Future<bool> updateProfile(Map<String, dynamic> updatedData) async {
+//     isLoading = true;
+//     notifyListeners();
+//
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final cookie = prefs.getString("cookie") ?? "";
+//       print("Update cookie = $cookie");
+//
+//       final response = await http.post(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/update-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie,
+//         },
+//         body: json.encode(updatedData),
+//       );
+//
+//       print("Update API status: ${response.statusCode}");
+//       print("Update API response: ${response.body}");
+//
+//       if (response.statusCode == 200) {
+//         final data = json.decode(response.body);
+//
+//         if (data["success"] == true) {
+//           if (data["user"] != null) {
+//
+//             user = ProfileModel.fromJson(data["user"]);
+//           } else if (user != null) {
+//
+//             user = ProfileModel(
+//               id: user!.id,
+//               fullName: updatedData["fullName"] ?? user!.fullName,
+//               phone: updatedData["phone"] ?? user!.phone,
+//               gender: updatedData["gender"] ?? user!.gender,
+//               email: updatedData["email"] ?? user!.email,
+//               image: updatedData["image"] ?? user!.image,
+//               resume: updatedData["resume"] ?? user!.resume,
+//               education: updatedData["education"] ?? user!.education,
+//               jobCategory: updatedData["jobCategory"] ?? user!.jobCategory,
+//               isExperienced: updatedData["isExperienced"] ??
+//                   user!.isExperienced,
+//               totalExperience: updatedData["totalExperience"] ??
+//                   user!.totalExperience,
+//             );
+//           }
+//           await fetchProfile();
+//           isLoading = false;
+//           notifyListeners();
+//           return true;
+//         }
+//       }
+//     } catch (e) {
+//       print("❌ Update error: $e");
+//     }
+//
+//     isLoading = false;
+//     notifyListeners();
+//     return false;
+//   }
+// }
+//
+
+
+
+
+
+// Ehatsam sir code complete working
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
+//
+// import '../ model/ProfileModel.dart';
+//
+//
+// class ProfileProvider with ChangeNotifier {
+//   bool isLoading = false;
+//   ProfileModel? user;
+//
+//   // var profile;
+//
+//   Future<void> fetchProfile() async {
+//     isLoading = true;
+//     notifyListeners();
+//     try {
+//       final prefs =await SharedPreferences.getInstance();
+//       final cookie=prefs.getString("cookie")??"";
+//       print("get cookie= $cookie");
+//       final response = await http.get(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/get-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie
+//         },
+//       );
+//       print("api hit");
+//       if (response.statusCode == 200) {
+//         print("status code ${response.statusCode}");
+//         print("🟢 Raw Response: ${response.body}");
+//
+//         final data = json.decode(response.body);
+//         print("Decoded Data: $data");
+//
+//         if (data["success"] == true && data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//           print("👤 User loaded: ${user!.fullName}");
+//         } else {
+//           print("⚠️ API success false ya user null aaya");
+//         }
+//       } else {
+//         print("❌ Server error: ${response.statusCode}");
+//       }
+//     } catch (e, stack) {
+//       print("❌ Exception: $e");
+//       print("❌ StackTrace: $stack");
+//     }
+//     isLoading = false;
+//     notifyListeners();
+//
+//
+//   }
+// }
+//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// shruti code
+
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:shared_preferences/shared_preferences.dart';
+//
+// import '../ model/ProfileModel.dart';
+//
+//
+// class ProfileProvider with ChangeNotifier {
+//   bool isLoading = false;
+//   ProfileModel? user;
+//
+//   Future<void> fetchProfile() async {
+//     isLoading = true;
+//     notifyListeners();
+//     try {
+//       final prefs =await SharedPreferences.getInstance();
+//       final cookie=prefs.getString("cookie")??"";
+//       print("get cookie= $cookie");
+//       final response = await http.get(
+//         Uri.parse("http://api.thenaukrimitra.com/api/user/get-profile"),
+//         headers: {
+//           "Accept": "application/json",
+//           "Content-Type": "application/json",
+//           "Cookie": cookie
+//         },
+//       );
+//       print("api hit");
+//       if (response.statusCode == 200) {
+//         print("status code ${response.statusCode}");
+//         print("🟢 Raw Response: ${response.body}");
+//
+//         final data = json.decode(response.body);
+//         print("Decoded Data: $data");
+//
+//         if (data["success"] == true && data["user"] != null) {
+//           user = ProfileModel.fromJson(data["user"]);
+//           print("👤 User loaded: ${user!.fullName}");
+//         } else {
+//           print("⚠️ API success false ya user null aaya");
+//         }
+//       } else {
+//         print("❌ Server error: ${response.statusCode}");
+//       }
+//     } catch (e, stack) {
+//       print("❌ Exception: $e");
+//       print("❌ StackTrace: $stack");
+//     }
+//     isLoading = false;
+//     notifyListeners();
+//
+//
+//   }
+//   }

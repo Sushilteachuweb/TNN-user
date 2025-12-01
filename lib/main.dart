@@ -1,0 +1,145 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:thenaukrimitra/SplashScreen/Splash.dart';
+import 'package:thenaukrimitra/provider/AppliedJobsProvider.dart';
+import 'package:thenaukrimitra/provider/Auth_Provider.dart';
+import 'package:thenaukrimitra/provider/CreateProfileProvider.dart';
+import 'package:thenaukrimitra/provider/JobProvider.dart';
+import 'package:thenaukrimitra/provider/ProfileProvider.dart';
+import 'package:thenaukrimitra/provider/create_provider.dart' hide ProfileProvider;
+import 'screens/login.dart';
+
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        // ChangeNotifierProvider(create: (_) => CreateProvider()),
+        ChangeNotifierProvider(create: (_) => JobProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => CreateProfileProvider()),
+        ChangeNotifierProvider(create: (_) => AppliedJobsProvider ()),
+
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: const Splash(),
+    );
+  }
+}
+
+
+
+
+
+// correct 10-09-2025
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import 'package:thenaukrimitra/SplashScreen/Splash.dart';
+// import 'package:thenaukrimitra/provider/AppliedJobsProvider.dart';
+// import 'package:thenaukrimitra/provider/Auth_Provider.dart';
+// import 'package:thenaukrimitra/provider/CreateProfileProvider.dart';
+// import 'package:thenaukrimitra/provider/JobProvider.dart';
+// import 'package:thenaukrimitra/provider/ProfileProvider.dart';
+// import 'package:thenaukrimitra/provider/create_provider.dart' hide ProfileProvider;
+// import 'screens/login.dart';
+//
+// void main() {
+//   runApp(
+//     MultiProvider(
+//       providers: [
+//         ChangeNotifierProvider(create: (_) => AuthProvider()),
+//         ChangeNotifierProvider(create: (_) => CreateProvider()),
+//         ChangeNotifierProvider(create: (_) => JobProvider()),
+//         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+//         ChangeNotifierProvider(create: (_) => CreateProfileProvider()),
+//         ChangeNotifierProvider(create: (_) => AppliedJobsProvider ()),
+//
+//       ],
+//       child: const MyApp(),
+//     ),
+//   );
+// }
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+//       ),
+//       home: const Splash(),
+//     );
+//   }
+// }
+//
+//
+
+
+
+
+
+
+
+// import 'package:flutter/material.dart';
+// import 'package:thenaukrimitra/SplashScreen/Splash.dart';
+//
+// void main() {
+//   runApp(const MyApp());
+// }
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+//       ),
+//       home: const Splash(),
+//     );
+//   }
+// }
+
+
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import 'providers/product_provider.dart';
+// import 'screens/product_screen.dart';
+//
+// void main() {
+//   runApp(
+//     MultiProvider(
+//       providers: [
+//         ChangeNotifierProvider(create: (_) => ProductProvider()),
+//       ],
+//       child: const MyApp(),
+//     ),
+//   );
+// }
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: const ProductScreen(),
+//     );
+//   }
+// }
