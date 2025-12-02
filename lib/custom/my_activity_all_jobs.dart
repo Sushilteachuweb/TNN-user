@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thenaukrimitra/all_job/job_full_details.dart';
 import 'package:thenaukrimitra/custom/custom_buttom_nav.dart';
 import 'package:thenaukrimitra/filter/filter_row.dart';
+import '../utils/custom_header.dart';
 
 class MyActivityAllJobs extends StatefulWidget {
   const MyActivityAllJobs({super.key});
@@ -21,7 +22,7 @@ class _MyActivityAllJobsState extends State<MyActivityAllJobs> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
+              const CustomHeader(),
               const SizedBox(height: 12),
                _buildSearchBar(),
                const SizedBox(height: 12),
@@ -95,43 +96,7 @@ class _MyActivityAllJobsState extends State<MyActivityAllJobs> {
       ),
     );
   }
-  // ---------------- HEADER ----------------
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        const Icon(Icons.location_on, color: Colors.blue),
-        const SizedBox(width: 4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "Noida",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            Text(
-              "Sector 62",
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-            ),
-          ],
-        ),
-        const Spacer(),
-        Image.asset(
-          "images/logo3.png",
-          height: 30,
-        ),
-        const Spacer(),
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0,),
-          child: Image.asset(
-            'images/arrow2.png',
-            height: 25,
-          ),
 
-        ),
-
-      ],
-    );
-  }
   // ---------------- SEARCH BAR ----------------
   Widget _buildSearchBar() {
     return Container(

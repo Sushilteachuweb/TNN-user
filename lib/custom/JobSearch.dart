@@ -6,6 +6,7 @@ import 'package:thenaukrimitra/filter/filter_row.dart';
 
 import '../model/JobModel.dart';
 import '../provider/JobProvider.dart';
+import '../utils/custom_header.dart';
 
 class JobSearch extends StatefulWidget {
   final List<JobModel> jobs;
@@ -54,20 +55,23 @@ class _JobSearchState extends State<JobSearch> {
     return Scaffold(
       backgroundColor: const Color(0xFFE7EAF6),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 12),
-              _buildSearchBar(jobProvider.jobs),
-              const SizedBox(height: 12),
-              const FilterRow(),
-              const SizedBox(height: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const CustomHeader(),
+            const SizedBox(height: 8),
+            _buildSearchBar(jobProvider.jobs),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+              child: const FilterRow(),
+            ),
+            const SizedBox(height: 8),
 
-              // ---------------- API Job List ----------------
-              Expanded(
+            // ---------------- API Job List ----------------
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                 child: filteredJobs.isEmpty
                     ? const Center(child: Text("No jobs available"))
                     : ListView.builder(
@@ -78,51 +82,18 @@ class _JobSearchState extends State<JobSearch> {
                   },
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  // ---------------- HEADER ----------------
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        const Icon(Icons.location_on, color: Colors.blue),
-        const SizedBox(width: 4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "Noida",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            Text(
-              "Sector 62",
-              style: TextStyle(color: Colors.grey, fontSize: 12),
             ),
           ],
         ),
-        const Spacer(),
-        Image.asset(
-          "images/logo3.png",
-          height: 30,
-        ),
-        const Spacer(),
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Image.asset(
-            'images/arrow2.png',
-            height: 25,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   // ---------------- SEARCH BAR ----------------
   Widget _buildSearchBar(List<JobModel> allJobs) {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         gradient: const LinearGradient(
@@ -134,10 +105,13 @@ class _JobSearchState extends State<JobSearch> {
       child: TextField(
         controller: searchController,
         onChanged: (value) => _filterJobs(value, allJobs), // 🔹 filter call
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           hintText: "Search Job",
-          hintStyle: TextStyle(color: Colors.white),
-          prefixIcon: Icon(Icons.search, color: Colors.white),
+          hintStyle: const TextStyle(color: Colors.white, fontSize: 18),
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.search, color: Colors.white),
+            onPressed: () => _filterJobs(searchController.text, allJobs),
+          ),
           border: InputBorder.none,
         ),
         style: const TextStyle(color: Colors.white),
@@ -157,92 +131,92 @@ class _JobSearchState extends State<JobSearch> {
           ),
         );
       },
-      child: Container(
-        width: double.infinity,
+      child: Card(
+        color: Colors.white,
         margin: const EdgeInsets.symmetric(vertical: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade200,
-              blurRadius: 4,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title + Urgent
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
                     job.title,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-                if (job.jobType.toLowerCase().contains("urgent"))
-                  Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
-                      borderRadius: BorderRadius.circular(4),
+                  if (job.jobType.toLowerCase().contains("urgent"))
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        "Urgent Hiring",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 10,
+                        ),
+                      ),
                     ),
-                    child: const Text(
-                      "Urgent Hiring",
-                      style: TextStyle(color: Colors.blue, fontSize: 10),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(job.companyName, style: const TextStyle(fontSize: 12)),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.location_on, size: 14, color: Colors.blue),
-                const SizedBox(width: 4),
-                Text(job.workLocation, style: const TextStyle(fontSize: 12)),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              "₹${job.minSalary} - ₹${job.maxSalary}",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
+                ],
               ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                _buildTag("New Job", Colors.orange),
-                const SizedBox(width: 6),
-                _buildTag("Vacancies: ${job.vacancies}", Colors.orange),
-              ],
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(job.companyName, style: const TextStyle(color: Colors.black54)),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Icons.location_on_outlined, size: 16, color: Colors.blue),
+                  const SizedBox(width: 5),
+                  Text(job.workLocation),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Icons.currency_rupee, size: 16, color: Colors.blue),
+                  Text("${job.minSalary} - ${job.maxSalary}"),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _buildTag("New Job", Colors.orange),
+                  const SizedBox(width: 20),
+                  _buildTag("${job.vacancies} Vacancies", Colors.deepOrange),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
+  // Tag Chip
   Widget _buildTag(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4),
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 10, color: color),
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+          color: color,
+        ),
       ),
     );
   }

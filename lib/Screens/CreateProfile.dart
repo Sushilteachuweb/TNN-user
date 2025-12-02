@@ -19,12 +19,20 @@ class CreateProfile extends StatefulWidget {
 
 class _CreateProfileState extends State<CreateProfile> {
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   String? selectedGender;
   String? selectedEducation;
   String? selectedExperience;
   File? selectedImage;
 
   final ImagePicker picker = ImagePicker();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    super.dispose();
+  }
 
   // 📸 Image Picker with permission
   Future<void> _pickImage(ImageSource source) async {
@@ -222,6 +230,26 @@ class _CreateProfileState extends State<CreateProfile> {
                 ),
               ),
 
+              const SizedBox(height: 20),
+              const Text("Email",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              const SizedBox(height: 5),
+              TextFormField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  hintText: "example@email.com",
+                  contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+
               // 🚻 Gender
               _buildOptions(
                 title: "Gender",
@@ -257,7 +285,32 @@ class _CreateProfileState extends State<CreateProfile> {
                     onPressed: provider.isLoading
                         ? null
                         : () async {
+                      // ✅ Validate email format
+                      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                      
+                      if (nameController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("⚠️ Please enter your full name")),
+                        );
+                        return;
+                      }
+                      
+                      if (emailController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("⚠️ Please enter your email")),
+                        );
+                        return;
+                      }
+                      
+                      if (!emailRegex.hasMatch(emailController.text.trim())) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("⚠️ Please enter a valid email address")),
+                        );
+                        return;
+                      }
+                      
                       if (nameController.text.isNotEmpty &&
+                          emailController.text.isNotEmpty &&
                           selectedGender != null &&
                           selectedEducation != null &&
                           selectedExperience != null &&
@@ -267,12 +320,12 @@ class _CreateProfileState extends State<CreateProfile> {
 
                         final result = await provider.saveProfile(
                           context,
-                          fullName: nameController.text,
+                          fullName: nameController.text.trim(),
                           gender: selectedGender!,
                           education: selectedEducation!,
                           isExperienced: boolExp,
                           currentSalary: 50000,
-                          email: "Ali@gmail.com",
+                          email: emailController.text.trim(),
                           totalExperience: 2,
                           jobCategory: "Software",
                           skills: "Flutter",

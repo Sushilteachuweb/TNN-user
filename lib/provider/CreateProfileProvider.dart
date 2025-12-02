@@ -306,8 +306,7 @@ class CreateProfileProvider with ChangeNotifier {
 
       if (streamedResponse.statusCode >= 200 &&
           streamedResponse.statusCode < 300) {
-        Provider.of<ProfileProvider>(context, listen: false).fetchProfile();
-
+        
         if (respStr.isEmpty) {
           return {
             "success": true,
@@ -320,13 +319,32 @@ class CreateProfileProvider with ChangeNotifier {
           final data = json.decode(respStr);
           if (kDebugMode) print('Response ===> $data');
 
-          // ✅ Cookie Save
+          // ✅ Check for nested error in data.success
+          if (data['data'] != null && data['data']['success'] == false) {
+            if (kDebugMode) print("❌ Backend returned nested error: ${data['data']['message']}");
+            return {
+              "success": false,
+              "message": data['data']['message'] ?? "Profile creation failed",
+              "data": data['data'],
+            };
+          }
+
+          // ✅ FIRST: Save the new cookie
           final rawCookie = streamedResponse.headers['set-cookie'];
           if (rawCookie != null) {
             final pref = await SharedPreferences.getInstance();
             await pref.setString("cookie", rawCookie);
-            if (kDebugMode) print("Cookie saved = $rawCookie");
+            if (kDebugMode) print("🍪 New cookie saved after profile creation: $rawCookie");
+            
+            // Small delay to ensure cookie is persisted
+            await Future.delayed(const Duration(milliseconds: 100));
+          } else {
+            if (kDebugMode) print("⚠️ No new cookie received from profile creation API");
           }
+
+          // ✅ THEN: Fetch profile with the new cookie
+          if (kDebugMode) print("📡 Fetching profile with new cookie...");
+          await Provider.of<ProfileProvider>(context, listen: false).fetchProfile();
 
           // ✅ New Response Structure Handle
           final bool success = data['success'] ?? false;

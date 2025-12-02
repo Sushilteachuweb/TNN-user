@@ -413,6 +413,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../UpdateProfileScreen/UpdateProfileScreen.dart';
 import '../provider/ProfileProvider.dart';
+import '../utils/custom_app_bar.dart';
 import 'Setting_Screen.dart';
 import 'resume_service.dart';
 import 'bottom_sheet_helper.dart';
@@ -449,44 +450,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          "My Profile",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              ),
-              onPressed: () {},
-              icon: const Icon(Icons.share, color: Colors.white, size: 18),
-              label: const Text(
-                "Share App",
-                style: TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.black),
-            onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => SettingScreen()));
-            },
-          ),
-        ],
+      appBar: const CustomAppBar(
+        title: "My Profile",
       ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -555,33 +520,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                        ),
-                        builder: (context) => Padding(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom,
-                          ),
-                          child: UpdateProfileSheet (
-                            fullName: profile?.fullName ?? "",
-                            email: profile?.email ?? "",
-                            gender: profile?.gender ?? "",
-                            education: profile?.education ?? "",
-                          ),
-                        ),
-                      ).then((_) {
-                        Provider.of<ProfileProvider>(context, listen: false).fetchProfile();
-                      });
-                    },
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue, size: 20),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                            ),
+                            builder: (context) => Padding(
+                              padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).viewInsets.bottom,
+                              ),
+                              child: UpdateProfileSheet (
+                                fullName: profile?.fullName ?? "",
+                                email: profile?.email ?? "",
+                                gender: profile?.gender ?? "",
+                                education: profile?.education ?? "",
+                              ),
+                            ),
+                          ).then((_) {
+                            Provider.of<ProfileProvider>(context, listen: false).fetchProfile();
+                          });
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.settings, color: Colors.blue, size: 20),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SettingScreen()),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-
-
                 ],
               ),
             ),

@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/AppliedJobsProvider.dart';
+import '../utils/custom_app_bar.dart';
 
 class MyActivity extends StatelessWidget {
   const MyActivity({super.key});
@@ -13,39 +14,13 @@ class MyActivity extends StatelessWidget {
     final appliedJobs = Provider.of<AppliedJobsProvider>(context).appliedJobs;
     return Scaffold(
       backgroundColor: const Color(0xfff2f4f8),
-      appBar: AppBar(
+      appBar: CustomAppBar(
+        title: "My Activity",
         backgroundColor: const Color(0xfff2f4f8),
-        elevation: 0,
-        title: const Text(
-          "My Activity",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        ),
         actions: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              ),
-              onPressed: () {},
-              icon: const Icon(Icons.share, color: Colors.white, size: 18),
-              label: const Text(
-                "Share App",
-                style: TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0),
-            child: Image.asset("images/notification1.png", height: 30),
+            padding: const EdgeInsets.only(right: 12.0),
+            child: Image.asset("images/notification1.png", height: 24),
           ),
         ],
       ),

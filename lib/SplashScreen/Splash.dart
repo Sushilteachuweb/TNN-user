@@ -70,7 +70,13 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('images/spl1.png'),
+                Image.asset(
+                  'images/spl1.png',
+                  width: 250,
+                  height: 250,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 16),
                 const Padding(
                   padding: EdgeInsets.only(left: 20.0),
                   child: Text.rich(

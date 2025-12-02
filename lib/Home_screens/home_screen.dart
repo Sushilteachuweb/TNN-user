@@ -10,6 +10,8 @@ import 'package:thenaukrimitra/custom/JobSearch.dart';
 import '../all_job/job_full_details.dart';
 import '../main_Screen/main_screen.dart';
 import '../provider/JobProvider.dart';
+import '../provider/ProfileProvider.dart';
+import '../utils/custom_header.dart';
 class HomeScreen extends StatefulWidget {
   final String title;
   final String image;
@@ -42,8 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        context.read<JobProvider>().fetchJobs());
+    Future.microtask(() {
+      context.read<JobProvider>().fetchJobs();
+      // ✅ Also fetch user profile when home screen loads
+      context.read<ProfileProvider>().fetchProfile();
+    });
   }
 
   @override
@@ -62,63 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      // child: Row(
-                      //   children: const [
-                      //     Icon(Icons.location_on, color: Colors.blue),
-                      //     SizedBox(width: 5),
-                      //     Text(
-                      //       "Noida\nSector 62",
-                      //       style: TextStyle(
-                      //           fontWeight: FontWeight.w500, fontSize: 13),
-                      //     ),
-                      //   ],
-                      // ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.location_on, color: Colors.blue),
-                          SizedBox(width: 5),
-                          Text(
-                            "Noida\nSector 62",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 13,
-                              height: 1.1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Image(
-                          image: AssetImage('images/logo3.png'),
-                          height: 35,
-                        ),
-                        const SizedBox(width: 90),
-                        Image.asset(
-                          'images/arrow2.png',
-                          height: 25,
-                          color: Colors.blue,
-                        ),
-                        const SizedBox(width: 5),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 12.0),
-                          child: Image.asset(
-                            'images/notification1.png',
-                            height: 25,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                const SizedBox(height: 5),
+                const CustomHeader(),
+                const SizedBox(height: 8),
       
                 // 🔍 Search Box
                 Container(

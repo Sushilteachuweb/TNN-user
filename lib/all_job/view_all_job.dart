@@ -3,6 +3,7 @@ import 'package:thenaukrimitra/all_job/job_full_details.dart';
 import 'package:thenaukrimitra/filter/filter_row.dart';
 
 import '../model/JobModel.dart';
+import '../utils/custom_header.dart';
 
 class ViewAllJob extends StatefulWidget {
   final List<JobModel> jobs;
@@ -46,7 +47,7 @@ class _ViewAllJobState extends State<ViewAllJob> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
+              const CustomHeader(),
               const SizedBox(height: 12),
               _buildSearchBar(),
               const SizedBox(height: 12),
@@ -77,36 +78,6 @@ class _ViewAllJobState extends State<ViewAllJob> {
           ),
         ),
       ),
-    );
-  }
-
-  // ---------------- HEADER ----------------
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        const Icon(Icons.location_on, color: Colors.blue),
-        const SizedBox(width: 4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "Noida",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            Text(
-              "Sector 62",
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-            ),
-          ],
-        ),
-        const Spacer(),
-        Image.asset("images/logo3.png", height: 30),
-        const Spacer(),
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Image.asset('images/arrow2.png', height: 25),
-        ),
-      ],
     );
   }
 

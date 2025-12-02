@@ -655,7 +655,14 @@ class ProfileProvider with ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final cookie = prefs.getString("cookie") ?? "";
-      print("Cookie used: $cookie");
+      print("🍪 Cookie used for fetchProfile: $cookie");
+
+      if (cookie.isEmpty) {
+        print("❌ No cookie found! User might not be logged in.");
+        isLoading = false;
+        notifyListeners();
+        return;
+      }
 
       final response = await http.get(
         Uri.parse("https://api.thenaukrimitra.com/api/user/get-profile"),
@@ -666,29 +673,33 @@ class ProfileProvider with ChangeNotifier {
         },
       );
 
-
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
+      print("📡 Response status: ${response.statusCode}");
+      print("📩 Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print("Decoded JSON: $data");
+        print("📦 Decoded JSON: $data");
 
         if (data["success"] == true && data["user"] != null) {
           user = ProfileModel.fromJson(data["user"]);
-          print("✅ User loaded: ${user?.fullName}, ${user?.email}, ${user?.phone}");
+          print("✅ User profile loaded successfully!");
+          print("   Name: ${user?.fullName}");
+          print("   Email: ${user?.email}");
+          print("   Phone: ${user?.phone}");
         } else {
-          // Handle backend error
           print("❌ Backend Error: ${data["message"]}");
           if (data["message"]?.toString().contains("role=user") == true) {
-            print("⚠️ User role issue - contact backend team to fix user role in database");
+            print("⚠️ User role issue - contact backend team");
           }
         }
+      } else if (response.statusCode == 401) {
+        print("❌ Unauthorized - Cookie might be expired or invalid");
       } else {
         print("❌ Server error: ${response.statusCode}");
       }
-    } catch (e) {
-      print("Fetch profile error: $e");
+    } catch (e, stackTrace) {
+      print("❌ Fetch profile error: $e");
+      print("Stack trace: $stackTrace");
     }
     isLoading = false;
     notifyListeners();
@@ -708,6 +719,14 @@ class ProfileProvider with ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final cookie = prefs.getString("cookie") ?? "";
+      print("🍪 Cookie used for updateProfile: $cookie");
+
+      if (cookie.isEmpty) {
+        print("❌ No cookie found! Cannot update profile.");
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
 
       var request = http.MultipartRequest(
         "PUT",
@@ -720,6 +739,11 @@ class ProfileProvider with ChangeNotifier {
       request.fields["gender"] = gender.toLowerCase();
       request.fields["education"] = education;
 
+      print("📤 Updating profile with:");
+      print("   Name: $fullName");
+      print("   Email: $email");
+      print("   Gender: ${gender.toLowerCase()}");
+      print("   Education: $education");
 
       if (profileImage != null && profileImage.existsSync()) {
         request.files.add(await http.MultipartFile.fromPath(
@@ -727,6 +751,7 @@ class ProfileProvider with ChangeNotifier {
           profileImage.path,
           contentType: MediaType('image', 'jpeg'),
         ));
+        print("🖼️ Profile image added");
       }
 
       if (resumeFile != null && resumeFile.existsSync()) {
@@ -734,6 +759,7 @@ class ProfileProvider with ChangeNotifier {
           'resume',
           resumeFile.path,
         ));
+        print("📄 Resume file added");
       }
 
       request.headers.addAll({
@@ -741,21 +767,34 @@ class ProfileProvider with ChangeNotifier {
         "Accept": "application/json",
       });
 
+      print("📡 Sending update request...");
       var response = await request.send();
       final respStr = await response.stream.bytesToString();
-      final data = json.decode(respStr);
+      
+      print("📡 Update response status: ${response.statusCode}");
+      print("📩 Update response body: $respStr");
 
-      if (response.statusCode == 200 && data["success"] == true) {
-        if (data["user"] != null) user = ProfileModel.fromJson(data["user"]);
-        await fetchProfile();
-        isLoading = false;
-        notifyListeners();
-        return true;
+      if (response.statusCode == 200) {
+        final data = json.decode(respStr);
+        if (data["success"] == true) {
+          print("✅ Profile updated successfully!");
+          if (data["user"] != null) {
+            user = ProfileModel.fromJson(data["user"]);
+          }
+          await fetchProfile(); // Refresh profile data
+          isLoading = false;
+          notifyListeners();
+          return true;
+        } else {
+          print("❌ Update failed: ${data["message"]}");
+        }
       } else {
-        print("Update failed: $respStr");
+        print("❌ Server error during update: ${response.statusCode}");
+        print("Response: $respStr");
       }
-    } catch (e) {
-      print("UpdateProfile error: $e");
+    } catch (e, stackTrace) {
+      print("❌ UpdateProfile error: $e");
+      print("Stack trace: $stackTrace");
     }
 
     isLoading = false;

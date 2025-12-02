@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thenaukrimitra/Screens/Login.dart';
 
 import '../SessionManager/SessionManager.dart';
+import '../utils/custom_app_bar.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -24,22 +25,14 @@ class _SettingScreenState extends State<SettingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xfff2f4f8),
-      appBar: AppBar(
+      appBar: CustomAppBar(
+        title: "Settings",
         backgroundColor: const Color(0xfff2f4f8),
-        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.blue),
           onPressed: () {
             Navigator.pop(context);
           },
-        ),
-        title: const Text(
-          "Setting",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
         ),
       ),
       body: SingleChildScrollView(

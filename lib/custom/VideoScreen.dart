@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import '../utils/custom_app_bar.dart';
 
 class VideoScreen extends StatefulWidget {
   const VideoScreen({super.key});
@@ -35,11 +36,8 @@ class _VideoFeedScreenState extends State<VideoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Video Feed"),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        foregroundColor: Colors.black,
+      appBar: const CustomAppBar(
+        title: "Video Feed",
       ),
 
       body: ListView(
