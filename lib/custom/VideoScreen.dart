@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import 'package:chewie/chewie.dart';
 import '../utils/custom_app_bar.dart';
 
 class VideoScreen extends StatefulWidget {
@@ -22,16 +20,16 @@ class _VideoFeedScreenState extends State<VideoScreen> {
   ];
 
   final List<Map<String, String>> videos = [
-    {"video": "videos/ads.mp4",  "about": "I am A Flutter developer"},
-    {"video": "videos/ads2.mp4", "about": "Fintech Wallet UI Demo।"},
-    {"video": "videos/ads3.mp4",  "about": "I am A Flutter developer"},
-    {"video": "videos/ads.mp4", "about": "Fintech Wallet UI Demo।"},
-    {"video": "videos/ads2.mp4",  "about": "I am A Flutter developer"},
-    {"video": "videos/ads3.mp4", "about": "Fintech Wallet UI Demo।"},
-    {"video": "videos/ads.mp4",  "about": "I am A Flutter developer"},
-    {"video": "videos/ads2.mp4", "about": "Fintech Wallet UI Demo।"},
-
+    {"about": "I am A Flutter developer"},
+    {"about": "Fintech Wallet UI Demo।"},
+    {"about": "I am A Flutter developer"},
+    {"about": "Fintech Wallet UI Demo।"},
+    {"about": "I am A Flutter developer"},
+    {"about": "Fintech Wallet UI Demo।"},
+    {"about": "I am A Flutter developer"},
+    {"about": "Fintech Wallet UI Demo।"},
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +37,6 @@ class _VideoFeedScreenState extends State<VideoScreen> {
       appBar: const CustomAppBar(
         title: "Video Feed",
       ),
-
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
@@ -77,16 +74,15 @@ class _VideoFeedScreenState extends State<VideoScreen> {
               },
             ),
           ),
-
           const Divider(height: 1),
           ...videos.map((v) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 250,
                   width: double.infinity,
-                  child: VideoPlayerWidget(videoPath: v["video"]!),
+                  child: VideoPlaceholderWidget(),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
@@ -105,50 +101,34 @@ class _VideoFeedScreenState extends State<VideoScreen> {
   }
 }
 
-
-class VideoPlayerWidget extends StatefulWidget {
-  final String videoPath;
-  const VideoPlayerWidget({super.key, required this.videoPath});
-
-  @override
-  State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
-}
-
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  late VideoPlayerController _controller;
-  ChewieController? _chewieController;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.asset(widget.videoPath)
-      ..initialize().then((_) {
-        if (mounted) setState(() {});
-      });
-    _chewieController = ChewieController(
-      videoPlayerController: _controller,
-      autoPlay: false,
-      looping: false,
-      showControls: true,
-    );
-  }
-
-  @override
-  void dispose() {
-    _chewieController?.dispose();
-    _controller.dispose();
-    super.dispose();
-  }
+class VideoPlaceholderWidget extends StatelessWidget {
+  const VideoPlaceholderWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (!_controller.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return AspectRatio(
-      aspectRatio: _controller.value.aspectRatio,
-      child: Chewie(controller: _chewieController!),
+    return Container(
+      color: Colors.grey[300],
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.play_circle_outline,
+              size: 64,
+              color: Colors.grey[600],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Video Placeholder',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

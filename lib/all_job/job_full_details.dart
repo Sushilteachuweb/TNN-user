@@ -311,6 +311,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../model/JobModel.dart';
 import '../provider/AppliedJobsProvider.dart';
@@ -324,6 +325,33 @@ class JobFullDetails extends StatefulWidget {
 }
 
 class _JobFullDetailsState extends State<JobFullDetails> {
+  
+  void _shareJob() {
+    final job = widget.job;
+    final String shareText = '''
+🔔 Job Opportunity Alert!
+
+📌 Position: ${job.title}
+🏢 Company: ${job.companyName}
+📍 Location: ${job.workLocation}
+💼 Job Type: ${job.jobType}
+💰 Salary: ₹${job.minSalary} - ₹${job.maxSalary} / month
+📅 Experience: ${job.experience}
+🎓 Education: ${job.education.isNotEmpty ? job.education : "Not specified"}
+🛠️ Skills: ${job.skills.isNotEmpty ? job.skills.join(", ") : "Not specified"}
+
+📝 Description:
+${job.description.isNotEmpty ? job.description : "Not specified"}
+
+Apply now and grab this opportunity! 🚀
+''';
+
+    Share.share(
+      shareText,
+      subject: '${job.title} at ${job.companyName}',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final job = widget.job;
@@ -355,7 +383,9 @@ class _JobFullDetailsState extends State<JobFullDetails> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      _shareJob();
+                    },
                     icon: const Icon(Icons.share, size: 16, color: Colors.white),
                     label: const Text("Share", style: TextStyle(color: Colors.white)),
                   ),

@@ -378,21 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(height: 15,),
-                Container(
-                  height: 150,
-                  width: double.infinity,
-                  margin: EdgeInsets.all(10),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5, offset: Offset(0, 1))],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    "Your experience of job search on  The NaukriMitra?",
-                    style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
-                  ),
-                ),
+                _RatingWidget(),
                 SizedBox(height: 15,),
                 Container(
                   width: double.infinity,
@@ -628,11 +614,25 @@ Widget _buildVideoCard(BuildContext context, String title, String videoPath) {
             height: 170,
             width: 120,
             decoration: BoxDecoration(
-              color: Colors.black12,
+              color: Colors.grey[300],
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.play_circle_fill,
-                color: Colors.blue, size: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.play_circle_outline,
+                    color: Colors.grey[600], size: 40),
+                const SizedBox(height: 8),
+                Text(
+                  'Video\nPlaceholder',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 5),
@@ -671,7 +671,121 @@ Widget _buildAllJobsCard(String title, String subtitle, IconData icon) {
   );
 }
 
+// Rating Widget
+class _RatingWidget extends StatefulWidget {
+  @override
+  State<_RatingWidget> createState() => _RatingWidgetState();
+}
 
+class _RatingWidgetState extends State<_RatingWidget> {
+  int _rating = 0;
+  bool _submitted = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(color: Colors.grey, blurRadius: 5, offset: Offset(0, 1))
+        ],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: _submitted
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 50,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Thank You!",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Colors.green,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  "We appreciate your feedback",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Your experience of job search on The NaukriMitra?",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _rating = index + 1;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Icon(
+                          index < _rating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 40,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                SizedBox(height: 15),
+                if (_rating > 0)
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _submitted = true;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      "Submit Rating",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+    );
+  }
+}
 
 // correct and working all job show and job Search
 // import 'dart:io';

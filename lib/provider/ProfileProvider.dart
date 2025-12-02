@@ -746,20 +746,44 @@ class ProfileProvider with ChangeNotifier {
       print("   Education: $education");
 
       if (profileImage != null && profileImage.existsSync()) {
+        // Check image size (limit to 5MB)
+        final fileSize = profileImage.lengthSync();
+        final fileSizeInMB = fileSize / (1024 * 1024);
+        print("🖼️ Profile image size: ${fileSizeInMB.toStringAsFixed(2)} MB");
+        
+        if (fileSizeInMB > 5) {
+          print("❌ Profile image too large: ${fileSizeInMB.toStringAsFixed(2)} MB (max 5MB)");
+          isLoading = false;
+          notifyListeners();
+          throw Exception("Profile image is too large. Maximum size is 5MB. Your file is ${fileSizeInMB.toStringAsFixed(1)}MB");
+        }
+        
         request.files.add(await http.MultipartFile.fromPath(
           'image',
           profileImage.path,
           contentType: MediaType('image', 'jpeg'),
         ));
-        print("🖼️ Profile image added");
+        print("🖼️ Profile image added (${fileSizeInMB.toStringAsFixed(2)} MB)");
       }
 
       if (resumeFile != null && resumeFile.existsSync()) {
+        // Check file size (limit to 5MB)
+        final fileSize = resumeFile.lengthSync();
+        final fileSizeInMB = fileSize / (1024 * 1024);
+        print("📄 Resume file size: ${fileSizeInMB.toStringAsFixed(2)} MB");
+        
+        if (fileSizeInMB > 5) {
+          print("❌ Resume file too large: ${fileSizeInMB.toStringAsFixed(2)} MB (max 5MB)");
+          isLoading = false;
+          notifyListeners();
+          throw Exception("Resume file is too large. Maximum size is 5MB. Your file is ${fileSizeInMB.toStringAsFixed(1)}MB");
+        }
+        
         request.files.add(await http.MultipartFile.fromPath(
           'resume',
           resumeFile.path,
         ));
-        print("📄 Resume file added");
+        print("📄 Resume file added (${fileSizeInMB.toStringAsFixed(2)} MB)");
       }
 
       request.headers.addAll({
@@ -780,6 +804,7 @@ class ProfileProvider with ChangeNotifier {
           print("✅ Profile updated successfully!");
           if (data["user"] != null) {
             user = ProfileModel.fromJson(data["user"]);
+            print("🖼️ Updated image URL: ${user?.image}");
           }
           await fetchProfile(); // Refresh profile data
           isLoading = false;
@@ -788,6 +813,11 @@ class ProfileProvider with ChangeNotifier {
         } else {
           print("❌ Update failed: ${data["message"]}");
         }
+      } else if (response.statusCode == 413) {
+        print("❌ File too large (413): Server rejected the upload");
+        isLoading = false;
+        notifyListeners();
+        throw Exception("File size exceeds server limit. Please choose a smaller file (max 5MB).");
       } else {
         print("❌ Server error during update: ${response.statusCode}");
         print("Response: $respStr");

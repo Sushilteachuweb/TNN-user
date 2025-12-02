@@ -61,46 +61,96 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final logoSize = screenWidth * 0.55; // 55% of screen width
+    
     return Scaffold(
       body: Container(
-        color: const Color.fromRGBO(236, 236, 245, 1),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              const Color.fromRGBO(236, 236, 245, 1),
+              Colors.white.withOpacity(0.95),
+            ],
+          ),
+        ),
         child: Center(
           child: FadeTransition(
             opacity: _animation,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  'images/spl1.png',
-                  width: 250,
-                  height: 250,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(height: 16),
-                const Padding(
-                  padding: EdgeInsets.only(left: 20.0),
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Rozgar ka ',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'Digital Saathi',
-                          style: TextStyle(
-                            color: Colors.orange,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                Hero(
+                  tag: 'app_logo',
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.2),
+                          blurRadius: 30,
+                          spreadRadius: 10,
                         ),
                       ],
                     ),
-                    textAlign: TextAlign.center,
+                    child: Image.asset(
+                      'images/spl1.png',
+                      width: logoSize,
+                      height: logoSize,
+                      fit: BoxFit.contain,
+                      filterQuality: FilterQuality.high,
+                      isAntiAlias: true,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                const Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Rozgar ka ',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'Digital Saathi',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Your Job Search Partner',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue.withOpacity(0.7),
+                    ),
                   ),
                 ),
               ],

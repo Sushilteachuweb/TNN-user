@@ -411,9 +411,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../UpdateProfileScreen/UpdateProfileScreen.dart';
 import '../provider/ProfileProvider.dart';
 import '../utils/custom_app_bar.dart';
+import '../utils/image_helper.dart';
 import 'Setting_Screen.dart';
 import 'resume_service.dart';
 import 'bottom_sheet_helper.dart';
@@ -441,6 +443,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ProfileProvider>(context, listen: false).fetchProfile();
     });
+  }
+
+  // Helper to build profile image with error handling
+  Widget _buildProfileImage(String? imageUrl) {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return const Icon(Icons.person, size: 45, color: Colors.white);
+    }
+
+    // ✅ Use ImageHelper to get full URL
+    final fullImageUrl = ImageHelper.getFullImageUrl(imageUrl);
+    print("🖼️ Loading image from: $fullImageUrl");
+
+    return Image.network(
+      fullImageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        print("❌ Error loading image from: $fullImageUrl");
+        print("❌ Error: $error");
+        return const Icon(Icons.person, size: 45, color: Colors.white);
+      },
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Center(
+          child: CircularProgressIndicator(
+            value: loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!
+                : null,
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -472,12 +506,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   CircleAvatar(
                     radius: 35,
                     backgroundColor: Colors.grey,
-                    backgroundImage: profile?.image != null
-                        ? NetworkImage(profile!.image!)
-                        : null,
-                    child: profile?.image == null
-                        ? const Icon(Icons.person, size: 45, color: Colors.white)
-                        : null,
+                    child: ClipOval(
+                      child: _buildProfileImage(profile?.image),
+                    ),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
@@ -577,7 +608,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             _buildCard(
               title: "Personal Information",
-              editable: true,
+              editable: false,
               content: [
                 _InfoRow(
                     label: "Email",
@@ -626,10 +657,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 }
               },
               content: [
-                _ListItem(
-                  value: resumeFilePath != null
-                      ? resumeFilePath!.split('/').last
-                      : "Add Resume",
+                _ResumeItem(
+                  resumeUrl: profile?.resume,
+                  localPath: resumeFilePath,
                 ),
               ],
             ),
@@ -764,6 +794,150 @@ class _ListItem extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ResumeItem extends StatelessWidget {
+  final String? resumeUrl;
+  final String? localPath;
+
+  const _ResumeItem({this.resumeUrl, this.localPath});
+
+  String _getResumeFileName() {
+    if (resumeUrl != null && resumeUrl!.isNotEmpty) {
+      return resumeUrl!.split('/').last;
+    }
+    if (localPath != null && localPath!.isNotEmpty) {
+      return localPath!.split('/').last;
+    }
+    return "No resume uploaded";
+  }
+
+  Future<void> _openResume(BuildContext context) async {
+    if (resumeUrl == null || resumeUrl!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No resume available to open"),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final fullUrl = ImageHelper.getFullImageUrl(resumeUrl!);
+      print("📄 Opening resume from: $fullUrl");
+      
+      final uri = Uri.parse(fullUrl);
+      
+      // Try to launch the URL
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication, // Opens in browser or PDF viewer
+        );
+        print("✅ Resume opened successfully");
+      } else {
+        print("❌ Cannot launch URL: $fullUrl");
+        // Show dialog with URL as fallback
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Resume URL"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Copy this URL to open in browser:"),
+                  const SizedBox(height: 8),
+                  SelectableText(
+                    fullUrl,
+                    style: const TextStyle(fontSize: 12, color: Colors.blue),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Close"),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print("❌ Error opening resume: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error opening resume: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasResume = resumeUrl != null && resumeUrl!.isNotEmpty;
+    
+    return InkWell(
+      onTap: hasResume ? () => _openResume(context) : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: hasResume ? Colors.blue.shade50 : Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: hasResume ? Colors.blue.shade200 : Colors.grey.shade300,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              hasResume ? Icons.description : Icons.upload_file,
+              size: 20,
+              color: hasResume ? Colors.blue : Colors.grey,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _getResumeFileName(),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: hasResume ? Colors.black87 : Colors.grey,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (hasResume)
+                    const Text(
+                      "Tap to view",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.blue,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (hasResume)
+              const Icon(
+                Icons.open_in_new,
+                size: 18,
+                color: Colors.blue,
+              ),
+          ],
+        ),
       ),
     );
   }

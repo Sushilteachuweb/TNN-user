@@ -761,41 +761,114 @@ class _UpdateProfileSheetState extends State<UpdateProfileSheet> {
     super.dispose();
   }
 
+  String _getFileSize(File? file) {
+    if (file == null || !file.existsSync()) return "";
+    final bytes = file.lengthSync();
+    if (bytes < 1024) return "$bytes B";
+    if (bytes < 1024 * 1024) return "${(bytes / 1024).toStringAsFixed(1)} KB";
+    return "${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB";
+  }
+
   Future<void> pickProfileImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) setState(() => _profileImage = File(image.path));
+    if (image != null) {
+      final file = File(image.path);
+      final fileSize = file.lengthSync() / (1024 * 1024); // MB
+      
+      if (fileSize > 5) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Image too large: ${fileSize.toStringAsFixed(1)}MB. Max 5MB allowed."),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+      
+      setState(() => _profileImage = file);
+    }
   }
 
   Future<void> pickResumeFile() async {
     final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
-    if (file != null) setState(() => _resumeFile = File(file.path));
+    if (file != null) {
+      final resumeFile = File(file.path);
+      final fileSize = resumeFile.lengthSync() / (1024 * 1024); // MB
+      
+      if (fileSize > 5) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Resume too large: ${fileSize.toStringAsFixed(1)}MB. Max 5MB allowed."),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+      
+      setState(() => _resumeFile = resumeFile);
+      
+      // Show success message with file size
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Resume selected: ${_getFileSize(resumeFile)}"),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   void _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       final provider = Provider.of<ProfileProvider>(context, listen: false);
 
-      // ❌ Abhi image/resume upload nahi kar rahe, sirf text fields
-      bool success = await provider.updateProfile(
-        fullName: _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        gender: _selectedGender ?? "male",
-        education: _educationController.text.trim(),
-        profileImage: null,
-        resumeFile: null,
-      );
+      try {
+        // ✅ Now sending image and resume files if selected
+        bool success = await provider.updateProfile(
+          fullName: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          gender: _selectedGender ?? "male",
+          education: _educationController.text.trim(),
+          profileImage: _profileImage, // ✅ Send selected image
+          resumeFile: _resumeFile,     // ✅ Send selected resume
+        );
 
-      if (success) {
-        if (mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Profile updated successfully ✅")),
-          );
+        if (success) {
+          if (mounted) {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Profile updated successfully ✅"),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Failed to update profile ❌"),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
-      } else {
+      } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Failed to update profile ❌")),
+            SnackBar(
+              content: Text(e.toString().replaceAll('Exception: ', '')),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 4),
+            ),
           );
         }
       }
@@ -857,7 +930,7 @@ class _UpdateProfileSheetState extends State<UpdateProfileSheet> {
                 icon: Icons.image,
                 label: "Profile Image (Optional)",
                 fileName: _profileImage != null
-                    ? _profileImage!.path.split('/').last
+                    ? "${_profileImage!.path.split('/').last} (${_getFileSize(_profileImage)})"
                     : "No image selected",
                 onPressed: pickProfileImage,
                 color: Colors.blueAccent,
@@ -867,7 +940,7 @@ class _UpdateProfileSheetState extends State<UpdateProfileSheet> {
                 icon: Icons.description,
                 label: "Resume (Optional)",
                 fileName: _resumeFile != null
-                    ? _resumeFile!.path.split('/').last
+                    ? "${_resumeFile!.path.split('/').last} (${_getFileSize(_resumeFile)})"
                     : "No resume selected",
                 onPressed: pickResumeFile,
                 color: Colors.green,
@@ -923,6 +996,9 @@ class _UpdateProfileSheetState extends State<UpdateProfileSheet> {
       child: ListTile(
         leading: Icon(icon, color: color),
         title: Text(fileName, overflow: TextOverflow.ellipsis),
+        subtitle: fileName != "No image selected" && fileName != "No resume selected"
+            ? Text("Max size: 5MB", style: TextStyle(fontSize: 11, color: Colors.grey[600]))
+            : null,
         trailing: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
