@@ -284,12 +284,15 @@ class CreateProfileProvider with ChangeNotifier {
         'language': jsonEncode(["English", "Hindi"]),
       });
 
-      // ✅ Agar image bhejni ho to yeh uncomment karein
-      // if (image != null) {
-      //   request.files.add(
-      //     await http.MultipartFile.fromPath('image', image.path),
-      //   );
-      // }
+      // ✅ Add profile image if provided
+      if (image != null && image.existsSync()) {
+        request.files.add(
+          await http.MultipartFile.fromPath('image', image.path),
+        );
+        if (kDebugMode) print("🖼️ Profile image added: ${image.path}");
+      } else {
+        if (kDebugMode) print("⚠️ No profile image provided");
+      }
 
       if (kDebugMode) {
         print("📤 Sending request to: $uri");
@@ -337,14 +340,14 @@ class CreateProfileProvider with ChangeNotifier {
             if (kDebugMode) print("🍪 New cookie saved after profile creation: $rawCookie");
             
             // Small delay to ensure cookie is persisted
-            await Future.delayed(const Duration(milliseconds: 100));
+            await Future.delayed(const Duration(milliseconds: 200));
+            
+            // ✅ THEN: Fetch profile with the new cookie
+            if (kDebugMode) print("📡 Fetching profile with new cookie...");
+            await Provider.of<ProfileProvider>(context, listen: false).fetchProfile();
           } else {
             if (kDebugMode) print("⚠️ No new cookie received from profile creation API");
           }
-
-          // ✅ THEN: Fetch profile with the new cookie
-          if (kDebugMode) print("📡 Fetching profile with new cookie...");
-          await Provider.of<ProfileProvider>(context, listen: false).fetchProfile();
 
           // ✅ New Response Structure Handle
           final bool success = data['success'] ?? false;

@@ -441,30 +441,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     // ✅ FIX: Call fetchProfile after first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      print("🔄 ProfileScreen: Fetching profile on init");
       Provider.of<ProfileProvider>(context, listen: false).fetchProfile();
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // ✅ Refresh profile when returning to this screen
+    final provider = Provider.of<ProfileProvider>(context, listen: false);
+    if (provider.user == null || (provider.user?.image == null)) {
+      print("🔄 ProfileScreen: Refreshing profile (user or image is null)");
+      provider.fetchProfile();
+    }
+  }
+
   // Helper to build profile image with error handling
   Widget _buildProfileImage(String? imageUrl) {
+    print("🖼️ _buildProfileImage called with: $imageUrl");
+    
     if (imageUrl == null || imageUrl.isEmpty) {
+      print("⚠️ No image URL provided, showing default icon");
       return const Icon(Icons.person, size: 45, color: Colors.white);
     }
 
     // ✅ Use ImageHelper to get full URL
     final fullImageUrl = ImageHelper.getFullImageUrl(imageUrl);
-    print("🖼️ Loading image from: $fullImageUrl");
+    print("🖼️ Full image URL: $fullImageUrl");
 
     return Image.network(
       fullImageUrl,
       fit: BoxFit.cover,
+      width: 70,
+      height: 70,
       errorBuilder: (context, error, stackTrace) {
         print("❌ Error loading image from: $fullImageUrl");
         print("❌ Error: $error");
         return const Icon(Icons.person, size: 45, color: Colors.white);
       },
       loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
+        if (loadingProgress == null) {
+          print("✅ Image loaded successfully");
+          return child;
+        }
         return Center(
           child: CircularProgressIndicator(
             value: loadingProgress.expectedTotalBytes != null

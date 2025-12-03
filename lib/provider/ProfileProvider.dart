@@ -686,6 +686,8 @@ class ProfileProvider with ChangeNotifier {
           print("   Name: ${user?.fullName}");
           print("   Email: ${user?.email}");
           print("   Phone: ${user?.phone}");
+          print("   Image URL from API: ${data["user"]["image"]}");
+          print("   Image in model: ${user?.image}");
         } else {
           print("❌ Backend Error: ${data["message"]}");
           if (data["message"]?.toString().contains("role=user") == true) {

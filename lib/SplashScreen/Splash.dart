@@ -82,31 +82,10 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Hero(
-                  tag: 'app_logo',
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.2),
-                          blurRadius: 30,
-                          spreadRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: Image.asset(
-                      'images/spl1.png',
-                      width: logoSize,
-                      height: logoSize,
-                      fit: BoxFit.contain,
-                      filterQuality: FilterQuality.high,
-                      isAntiAlias: true,
-                    ),
-                  ),
+                Image.asset(
+                  'images/spl1.png',
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 1),
                 const Text.rich(
                   TextSpan(
                     children: [
@@ -114,7 +93,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
                         text: 'Rozgar ka ',
                         style: TextStyle(
                           color: Colors.blue,
-                          fontSize: 28,
+                          fontSize: 26,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.5,
                         ),
@@ -123,7 +102,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
                         text: 'Digital Saathi',
                         style: TextStyle(
                           color: Colors.orange,
-                          fontSize: 28,
+                          fontSize: 26,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.5,
                         ),

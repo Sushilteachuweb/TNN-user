@@ -40,35 +40,30 @@ class _SelectJobState extends State<SelectJob> {
                     // Logo
                     Image.asset(
                       'images/spl1.png',
-
-
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 25.0),
-                      child: const Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Rozgar ka ',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    const SizedBox(height: 8),
+                    const Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Rozgar ka ',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
                             ),
-
-                            TextSpan(
-                              text: 'Digital Saathi',
-                              style: TextStyle(
-                                color: Colors.orange,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          TextSpan(
+                            text: 'Digital Saathi',
+                            style: TextStyle(
+                              color: Colors.orange,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                        textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
+                      textAlign: TextAlign.center,
                     ),
 
                     const SizedBox(height: 100),

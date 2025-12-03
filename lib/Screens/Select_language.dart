@@ -72,17 +72,10 @@ class _SelectLanguageState extends State<SelectLanguage> with SingleTickerProvid
                   children: [
                     const SizedBox(height: 60),
                     // Logo
-                    Center(
-                      child: Image.asset(
-                        'images/spl1.png',
-                        width: logoSize,
-                        height: logoSize,
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.high,
-                        isAntiAlias: true,
-                      ),
+                    Image.asset(
+                      'images/spl1.png',
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 1),
                     const Text.rich(
                       TextSpan(
                         children: [
@@ -90,7 +83,7 @@ class _SelectLanguageState extends State<SelectLanguage> with SingleTickerProvid
                             text: 'Rozgar ka ',
                             style: TextStyle(
                               color: Colors.blue,
-                              fontSize: 24,
+                              fontSize: 26,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.5,
                             ),
@@ -99,7 +92,7 @@ class _SelectLanguageState extends State<SelectLanguage> with SingleTickerProvid
                             text: 'Digital Saathi',
                             style: TextStyle(
                               color: Colors.orange,
-                              fontSize: 24,
+                              fontSize: 26,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.5,
                             ),
@@ -218,7 +211,7 @@ class _SelectLanguageState extends State<SelectLanguage> with SingleTickerProvid
                         ),
                       );
                     }).toList(),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 10),
 
                     // Confirm Button
                     AnimatedOpacity(

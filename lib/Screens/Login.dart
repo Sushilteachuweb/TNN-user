@@ -42,37 +42,24 @@ class _LoginState extends State<Login> {
     final logoSize = screenWidth * 0.45; // 45% of screen width
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          color: Color.fromRGBO(236, 236, 245, 1),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
+      backgroundColor: const Color.fromRGBO(236, 236, 245, 1),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
               children: [
                 const SizedBox(height: 60),
-                Center(
-                  child: Hero(
-                    tag: 'app_logo',
-                    child: Image.asset(
-                      'images/spl1.png',
-                      width: logoSize,
-                      height: logoSize,
-                      fit: BoxFit.contain,
-                      filterQuality: FilterQuality.high,
-                      isAntiAlias: true,
-                    ),
-                  ),
+                Image.asset(
+                  'images/spl1.png',
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 1),
                 const Text.rich(
                   TextSpan(
                     children: [
                       TextSpan(
                         text: 'Rozgar Ka ',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 26,
                           fontWeight: FontWeight.w700,
                           color: Colors.blue,
                           letterSpacing: 0.5,
@@ -81,7 +68,7 @@ class _LoginState extends State<Login> {
                       TextSpan(
                         text: 'Digital Saathi',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 26,
                           fontWeight: FontWeight.w700,
                           color: Colors.orange,
                           letterSpacing: 0.5,
@@ -245,7 +232,6 @@ class _LoginState extends State<Login> {
             ),
           ),
         ),
-      ),
     );
   }
 
