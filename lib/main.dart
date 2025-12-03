@@ -7,6 +7,7 @@ import 'package:thenaukrimitra/provider/Auth_Provider.dart';
 import 'package:thenaukrimitra/provider/CreateProfileProvider.dart';
 import 'package:thenaukrimitra/provider/JobProvider.dart';
 import 'package:thenaukrimitra/provider/ProfileProvider.dart';
+import 'package:thenaukrimitra/provider/LocationProvider.dart';
 import 'package:thenaukrimitra/provider/create_provider.dart' hide ProfileProvider;
 import 'screens/login.dart';
 
@@ -30,8 +31,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => JobProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => CreateProfileProvider()),
-        ChangeNotifierProvider(create: (_) => AppliedJobsProvider ()),
-
+        ChangeNotifierProvider(create: (_) => AppliedJobsProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
       ],
       child: const MyApp(),
     ),

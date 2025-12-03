@@ -11,7 +11,9 @@ import '../all_job/job_full_details.dart';
 import '../main_Screen/main_screen.dart';
 import '../provider/JobProvider.dart';
 import '../provider/ProfileProvider.dart';
+import '../provider/LocationProvider.dart';
 import '../utils/custom_header.dart';
+import '../utils/location_permission_dialog.dart';
 class HomeScreen extends StatefulWidget {
   final String title;
   final String image;
@@ -38,17 +40,49 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    WidgetsBinding.instance.addObserver(this);
+    _initializeApp();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // When app resumes, check and fetch location again
+    if (state == AppLifecycleState.resumed) {
+      _checkAndFetchLocation();
+    }
+  }
+
+  Future<void> _initializeApp() async {
+    Future.microtask(() async {
+      // ✅ Check and show location permission dialog first
+      await LocationPermissionDialog.checkAndShowDialog(context);
+      
+      // ✅ Fetch location automatically
+      await _checkAndFetchLocation();
+      
       context.read<JobProvider>().fetchJobs();
       // ✅ Also fetch user profile when home screen loads
       context.read<ProfileProvider>().fetchProfile();
     });
+  }
+
+  Future<void> _checkAndFetchLocation() async {
+    // Always try to fetch location
+    if (mounted) {
+      await context.read<LocationProvider>().fetchLocation();
+    }
   }
 
   @override
